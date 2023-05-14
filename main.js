@@ -119,7 +119,7 @@ let commands = [];
 
 
 client.on('ready', () => {
-  console.log(`🟢 Login as ${client.user.tag}!`);
+  console.log(` ✓ Login as ${client.user.tag}!`);
 });
 
 
