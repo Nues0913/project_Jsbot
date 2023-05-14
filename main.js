@@ -15,7 +15,10 @@ const TOKEN = process.env.TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
 
 // 創建一個discord client
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [
+	GatewayIntentBits.Guilds,
+	GatewayIntentBits.GuildMessages,
+	GatewayIntentBits.MessageContent] });
 // Collection is a Map with additional utility methods in discord.js.
 client.commands = new Collection();
 // 直接使用client.commands也可以，但後面傳參時解析 Collection 會很麻煩，所以宣告一個array直接存command json data
@@ -114,8 +117,6 @@ let commands = [];
 // 		console.error(error);
 // 	}
 // })(commands);
-
-
 
 
 client.on('ready', () => {
