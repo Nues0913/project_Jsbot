@@ -5,7 +5,7 @@
  */
 import dotenv from 'dotenv';
 import fg from 'fast-glob'
-import { Client, Collection, GatewayIntentBits, REST, Routes } from 'discord.js';
+import { Client, Events, Collection, GatewayIntentBits, REST, Routes } from 'discord.js';
 
 
 // 加載根目錄.env文件
@@ -18,7 +18,7 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const client = new Client({ intents: [
 	GatewayIntentBits.Guilds,
 	GatewayIntentBits.GuildMessages,
-	GatewayIntentBits.MessageContent] });
+	GatewayIntentBits.MessageContent],partials: ["CHANNEL", "MESSAGE"]  });
 // Collection is a Map with additional utility methods in discord.js.
 client.commands = new Collection();
 // 直接使用client.commands也可以，但後面傳參時解析 Collection 會很麻煩，所以宣告一個array直接存command json data
@@ -122,6 +122,7 @@ let commands = [];
 client.on('ready', () => {
   console.log(` ✓ Login as ${client.user.tag}!`);
 });
+
 
 
 /**

@@ -18,17 +18,13 @@ import { start, stop, connectToMinecraftChat, disconnectToMinecraftChat, mcSpeak
 
 let connected = false
 
+
 async function execute(interaction) {
-	const mcListener = async(ctx) => {
-		console.log(ctx.content);
-		if (ctx.member.user.bot === true) return;
-		if (ctx.channel !== interaction.channel) return;
-		await mcSpeaker(ctx.content, ctx);
-	  };
 	const action = interaction.options.getString('option');
-	
+	let listener_index = -1
+
 	if (action === 'start') {
-		await start();
+		await start(); 
 		await interaction.reply('start!');
 
 	} else if (action === 'stop'){
@@ -37,22 +33,25 @@ async function execute(interaction) {
 
 	} else if (action === 'connectToMinecraftChat'){
 		if (connected !== true) {
-			connected = true;
-
 			await interaction.reply('connect!');
-			interaction.client.on(Events.MessageCreate, mcListener)
+			interaction.client.on(Events.MessageCreate, async(ctx) => {
+				if (ctx.member.user.bot === true) return;
+				if (ctx.channel !== interaction.channel) return;
+				await mcSpeaker(ctx.content, ctx)
+			});
+			listener_index = interaction.client.listeners(Events.MessageCreate).length-1
 			await connectToMinecraftChat(interaction);
+			connected = true;
 		} else {
 			await interaction.reply('It has already connected!')
 		}
-	// TODO: Disconnect未能斷開DC端傳送訊息至 Mc console
-	} else if (action === 'disconnectToMinecraftChat'){
 		
+	} else if (action === 'disconnectToMinecraftChat'){
 		if (connected !== false){
-			connected = false;
-			interaction.client.off(Events.MessageCreate, mcListener)
+			interaction.client.off(Events.MessageCreate, interaction.client.listeners(Events.MessageCreate).at(listener_index));
 			await disconnectToMinecraftChat();
 			await interaction.reply('disconnect!');
+			connected = false;
 		} else {
 			await interaction.reply('No connect available!')
 		}
