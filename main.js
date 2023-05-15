@@ -4,7 +4,7 @@
  *import syntax2 : import { export } from 'module';
  */
 import dotenv from 'dotenv';
-import fg from 'fast-glob'
+import fg from 'fast-glob';
 import { Client, Events, Collection, GatewayIntentBits, REST, Routes } from 'discord.js';
 
 

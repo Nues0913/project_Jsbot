@@ -37,9 +37,9 @@ async function execute(interaction) {
 			interaction.client.on(Events.MessageCreate, async(ctx) => {
 				if (ctx.member.user.bot === true) return;
 				if (ctx.channel !== interaction.channel) return;
-				await mcSpeaker(ctx.content, ctx)
+				await mcSpeaker(ctx.content, ctx, interaction)
 			});
-			listener_index = interaction.client.listeners(Events.MessageCreate).length-1
+			listener_index = interaction.client.listeners(Events.MessageCreate).length-1;
 			await connectToMinecraftChat(interaction);
 			connected = true;
 		} else {

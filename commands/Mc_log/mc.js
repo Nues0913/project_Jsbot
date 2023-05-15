@@ -22,15 +22,16 @@ const stop = async() => {try{
 
 
 const connectToMinecraftChat = async(interaction) => {
-	if (server.isOn) {
-		await interaction.reply('Chat bridge can not be started twice.');
-		return;
-	}
 	server.subscribe('console');
 	server.on("console:line", async (data) => {
-		console.log(data.line)
-		await interaction.channel.send(data.line);
-	});
+    if (data.line.includes(' [Not Secure] ')){
+		// Let it don't repeat the msg sent
+		if (!data.line.includes('[Server] <')){
+			const msg = data.line;
+			await interaction.channel.send(msg.slice(0,11) + msg.slice(msg.indexOf(' [Not Secure] ')+14,))
+		}
+    }
+});
 }
 
 const disconnectToMinecraftChat = async() => {
@@ -42,10 +43,11 @@ const disconnectToMinecraftChat = async() => {
 	});
 }
 
-const mcSpeaker = async (content, ctx) => { try {
-		await server.executeCommand("say " + content);
+const mcSpeaker = async (content, ctx, interaction) => { try {
+		let talker = interaction.user.username
+		await server.executeCommand("say " + `<${talker}> ${content}`);
 	} catch (error) {
-		await ctx.channel.send(error.message);
+		console.log(error.message)
 	}
 }
 
