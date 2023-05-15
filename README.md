@@ -1,4 +1,4 @@
-# this is a JavaScript Discord Bot for COC API
+# this is a JavaScript Discord Bot for MC SERVER
 ```javascript=
 console.log("屁眼派對")
 ```
