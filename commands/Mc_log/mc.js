@@ -28,7 +28,7 @@ const connectToMinecraftChat = async(interaction) => {
 		// Let it don't repeat the msg sent
 		if (!data.line.includes('[Server] <')){
 			const msg = data.line;
-			await interaction.channel.send(msg.slice(0,11) + msg.slice(msg.indexOf(' [Not Secure] ')+14,))
+			await interaction.channel.send(msg.slice(0,11) + msg.slice(msg.indexOf(' [Not Secure] ')+14,));
 		}
     }
 });
@@ -36,18 +36,22 @@ const connectToMinecraftChat = async(interaction) => {
 
 const disconnectToMinecraftChat = async() => {
 	server.unsubscribe('console');
-	server.removeAllListeners()
+	server.removeAllListeners();
 	server.off("console:line", async (data) => {
-		console.log(data.line)
+		console.log(data.line);
 		await interaction.channel.send(data.line);
 	});
 }
 
 const mcSpeaker = async (content, ctx, interaction) => { try {
-		let talker = interaction.user.username
-		await server.executeCommand("say " + `<${talker}> ${content}`);
+		if (server.hasStatus(server.STATUS.ONLINE)){
+			let talker = interaction.user.username;
+			await server.executeCommand("say " + `<${talker}> ${content}`);
+		} else {
+			await interaction.channel.send('Server is not online');
+		}
 	} catch (error) {
-		console.log(error.message)
+		console.log(error.message);
 	}
 }
 

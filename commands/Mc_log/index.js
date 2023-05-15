@@ -16,12 +16,11 @@ import { start, stop, connectToMinecraftChat, disconnectToMinecraftChat, mcSpeak
 				{ name: 'disconnectToMinecraftChat', value: 'disconnectToMinecraftChat' },
 			));
 
-let connected = false
-
+let connected = false;
+let obj_listener = {}
 
 async function execute(interaction) {
 	const action = interaction.options.getString('option');
-	let listener_index = -1
 
 	if (action === 'start') {
 		await start(); 
@@ -37,23 +36,23 @@ async function execute(interaction) {
 			interaction.client.on(Events.MessageCreate, async(ctx) => {
 				if (ctx.member.user.bot === true) return;
 				if (ctx.channel !== interaction.channel) return;
-				await mcSpeaker(ctx.content, ctx, interaction)
+				await mcSpeaker(ctx.content, ctx, interaction);
 			});
-			listener_index = interaction.client.listeners(Events.MessageCreate).length-1;
+			obj_listener['mcListener'] = interaction.client.listeners(Events.MessageCreate).at(-1);
 			await connectToMinecraftChat(interaction);
 			connected = true;
 		} else {
-			await interaction.reply('It has already connected!')
+			await interaction.reply('It has already connected!');
 		}
 		
 	} else if (action === 'disconnectToMinecraftChat'){
 		if (connected !== false){
-			interaction.client.off(Events.MessageCreate, interaction.client.listeners(Events.MessageCreate).at(listener_index));
+			interaction.client.off(Events.MessageCreate, obj_listener['mcListener']);
 			await disconnectToMinecraftChat();
 			await interaction.reply('disconnect!');
 			connected = false;
 		} else {
-			await interaction.reply('No connect available!')
+			await interaction.reply('No connect available!');
 		}
 	}
 	
