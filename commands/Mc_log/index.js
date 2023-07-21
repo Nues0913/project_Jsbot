@@ -1,7 +1,11 @@
 import { Events, SlashCommandBuilder } from 'discord.js';
 import { start, stop, connectToMinecraftChat, disconnectToMinecraftChat, mcSpeaker } from "./mc.js"
+import fs from 'node:fs';
+let jsData = fs.readFileSync('commands/Mc_log/channel.json','utf-8');
+let channelData = JSON.parse(jsData);
+let connected = false;
 
-
+const channelId = channelData.channel;
 	const data = new SlashCommandBuilder()
 	.setName('mc_server')
 	.setDescription('server controler')
@@ -16,7 +20,7 @@ import { start, stop, connectToMinecraftChat, disconnectToMinecraftChat, mcSpeak
 				{ name: 'disconnectToMinecraftChat', value: 'disconnectToMinecraftChat' },
 			));
 
-let connected = false;
+
 let obj_listener = {}
 
 async function execute(interaction) {
@@ -36,21 +40,30 @@ async function execute(interaction) {
 			interaction.client.on(Events.MessageCreate, async(ctx) => {
 				if (ctx.member.user.bot === true) return;
 				if (ctx.channel !== interaction.channel) return;
-				await mcSpeaker(ctx.content, ctx, interaction);
+				await mcSpeaker(ctx.content, ctx, interaction.channel);
 			});
 			obj_listener['mcListener'] = interaction.client.listeners(Events.MessageCreate).at(-1);
-			await connectToMinecraftChat(interaction);
+			await connectToMinecraftChat(interaction.channel);
+			channelData['channel'] = interaction.channel.id;
+			jsData = JSON.stringify(channelData);
+			fs.writeFileSync('commands/Mc_log/channel.json', jsData, 'utf-8');
 			connected = true;
+			
 		} else {
 			await interaction.reply('It has already connected!');
 		}
 		
 	} else if (action === 'disconnectToMinecraftChat'){
 		if (connected !== false){
-			interaction.client.off(Events.MessageCreate, obj_listener['mcListener']);
+			// interaction.client.off(Events.MessageCreate, obj_listener['mcListener']);
+			interaction.client.removeAllListeners(Events.MessageCreate);
 			await disconnectToMinecraftChat();
 			await interaction.reply('disconnect!');
+			delete channelData['channel'];
+			jsData = JSON.stringify(channelData);
+			fs.writeFileSync('commands/Mc_log/channel.json', jsData, 'utf-8');
 			connected = false;
+			
 		} else {
 			await interaction.reply('No connect available!');
 		}
@@ -58,4 +71,26 @@ async function execute(interaction) {
 	
 }
 
-export { data, execute };
+/** 
+ *MC channel preloader
+ */
+const channelPreloader = async (client) =>{
+	if (Object.keys(channelData).length !== 0){
+		
+		connected = true;
+		const channel = await client.channels.fetch(channelId);
+		client.on(Events.MessageCreate, async(ctx) => {
+				if (ctx.member.user.bot === true) return;
+				if (ctx.channel !== channel) return;
+				await mcSpeaker(ctx.content, ctx, channel);
+			});
+		await connectToMinecraftChat(channel);
+	}
+}
+
+
+
+
+
+
+export { data, execute, channelPreloader };

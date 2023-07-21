@@ -5,6 +5,10 @@ dotenv.config();
 const EXAROTON_TOKEN = process.env.EXAROTON_TOKEN;
 const client = new Client(EXAROTON_TOKEN);
 const server = client.server("7CRThZgPBJnB3C4K");
+/*
+ *TMLserver : #7CRThZgPBJnB3C4K
+ *TMLmodule : #vfwoRnN2dyYRYCGT
+ */
 
 
 const start = async () => {try {
@@ -21,14 +25,14 @@ const stop = async() => {try{
 }};
 
 
-const connectToMinecraftChat = async(interaction) => {
+const connectToMinecraftChat = async(channel) => {
 	server.subscribe('console');
 	server.on("console:line", async (data) => {
     if (data.line.includes(' [Not Secure] ')){
 		// Let it don't repeat the msg sent
 		if (!data.line.includes('[Server] <')){
 			const msg = data.line;
-			await interaction.channel.send(msg.slice(0,11) + msg.slice(msg.indexOf(' [Not Secure] ')+14,));
+			await channel.send(msg.slice(0,11) + msg.slice(msg.indexOf(' [Not Secure] ')+14,));
 		}
     }
 });
@@ -43,17 +47,18 @@ const disconnectToMinecraftChat = async() => {
 	});
 }
 
-const mcSpeaker = async (content, ctx, interaction) => { try {
+const mcSpeaker = async (content, ctx, channel) => { try {
 		if (server.hasStatus(server.STATUS.ONLINE)){
-			let talker = interaction.user.username;
+			let talker = ctx.member.user.username;
 			await server.executeCommand("say " + `<${talker}> ${content}`);
 		} else {
-			await interaction.channel.send('Server is not online');
+			await channel.send('Server is not online');
 		}
 	} catch (error) {
 		console.log(error.message);
 	}
 }
+
 
 export {start, stop, connectToMinecraftChat, disconnectToMinecraftChat, mcSpeaker };
 // server.subscribe("console");

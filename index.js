@@ -6,7 +6,8 @@
 import dotenv from 'dotenv';
 import fg from 'fast-glob';
 import { Client, Events, Collection, GatewayIntentBits, REST, Routes } from 'discord.js';
-
+import keep_alive from './keep_alive.js'
+import { channelPreloader } from './commands/Mc_log/index.js'
 
 // 加載根目錄.env文件
 dotenv.config();
@@ -118,13 +119,6 @@ let commands = [];
 // 	}
 // })(commands);
 
-
-client.on('ready', () => {
-  console.log(` ✓ Login as ${client.user.tag}!`);
-});
-
-
-
 /**
  * 指令調用
  */
@@ -152,5 +146,12 @@ client.on('interactionCreate', async interaction => {
 		}
 	}
 });
+
+
+client.once('ready', async() => {
+	console.log(` ✓ Login as ${client.user.tag}!`);
+	await channelPreloader(client);
+});
+
 
 client.login(TOKEN);
